@@ -1,1 +1,3 @@
-# square
+# Square
+
+Pet canvas game

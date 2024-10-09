@@ -1,0 +1,12 @@
+html {
+    overflow: hidden;
+}
+
+body {
+    overflow: hidden;
+    margin: 0;
+}
+
+.scene {
+    /*background-color: #eee;*/
+}

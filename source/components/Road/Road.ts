@@ -1,5 +1,5 @@
-import { context } from '@constants';
-import { Coords } from '@utils/Coords';
+import { context } from '@options';
+import { Vector } from '@utils/Vector';
 import type {
     RoadParamsType,
     RoadVariantType,
@@ -13,7 +13,7 @@ const minRotation = 0;
 const maxRotation = 3;
 
 export class Road {
-    coords: Coords;
+    coords: Vector;
 
     width: number;
 
@@ -41,7 +41,7 @@ export class Road {
         this.createPath();
     }
 
-    setCoords(coords: Coords) {
+    setCoords(coords: Vector) {
         this.coords = coords;
     }
 
@@ -84,65 +84,65 @@ export class Road {
         const y2 = y1 + roadWidth;
         const y3 = y0 + this.height;
 
-        let points: Coords[] = [];
+        let points: Vector[] = [];
 
         switch(this.variant) {
             case roadVariants.deadEnd:
                 points = [
-                    new Coords(x1, y0),
-                    new Coords(x2, y0),
-                    new Coords(x2, y1),
-                    new Coords(x1, y1),
+                    new Vector(x1, y0),
+                    new Vector(x2, y0),
+                    new Vector(x2, y1),
+                    new Vector(x1, y1),
                 ];
                 break;
 
             case roadVariants.straightRoad:
                 points = [
-                    new Coords(x1, y0),
-                    new Coords(x2, y0),
-                    new Coords(x2, y3),
-                    new Coords(x1, y3),
+                    new Vector(x1, y0),
+                    new Vector(x2, y0),
+                    new Vector(x2, y3),
+                    new Vector(x1, y3),
                 ];
                 break;
 
             case roadVariants.turnRoad:
                 points = [
-                    new Coords(x1, y0),
-                    new Coords(x2, y0),
-                    new Coords(x2, y2),
-                    new Coords(x0, y2),
-                    new Coords(x0, y1),
-                    new Coords(x1, y1),
+                    new Vector(x1, y0),
+                    new Vector(x2, y0),
+                    new Vector(x2, y2),
+                    new Vector(x0, y2),
+                    new Vector(x0, y1),
+                    new Vector(x1, y1),
                 ];
                 break;
 
             case roadVariants.tCrossing:
                 points = [
-                    new Coords(x1, y0),
-                    new Coords(x2, y0),
-                    new Coords(x2, y1),
-                    new Coords(x3, y1),
-                    new Coords(x3, y2),
-                    new Coords(x0, y2),
-                    new Coords(x0, y1),
-                    new Coords(x1, y1),
+                    new Vector(x1, y0),
+                    new Vector(x2, y0),
+                    new Vector(x2, y1),
+                    new Vector(x3, y1),
+                    new Vector(x3, y2),
+                    new Vector(x0, y2),
+                    new Vector(x0, y1),
+                    new Vector(x1, y1),
                 ];
                 break;
 
             case roadVariants.xCrossing:
                 points = [
-                    new Coords(x1, y0),
-                    new Coords(x2, y0),
-                    new Coords(x2, y1),
-                    new Coords(x3, y1),
-                    new Coords(x3, y2),
-                    new Coords(x2, y2),
-                    new Coords(x2, y3),
-                    new Coords(x1, y3),
-                    new Coords(x1, y2),
-                    new Coords(x0, y2),
-                    new Coords(x0, y1),
-                    new Coords(x1, y1),
+                    new Vector(x1, y0),
+                    new Vector(x2, y0),
+                    new Vector(x2, y1),
+                    new Vector(x3, y1),
+                    new Vector(x3, y2),
+                    new Vector(x2, y2),
+                    new Vector(x2, y3),
+                    new Vector(x1, y3),
+                    new Vector(x1, y2),
+                    new Vector(x0, y2),
+                    new Vector(x0, y1),
+                    new Vector(x1, y1),
                 ];
                 break;
         }
@@ -154,9 +154,9 @@ export class Road {
             let coords = point;
 
             if (rotationAngle) {
-                const pivot = new Coords(x0 + this.width / 2, y0 + this.height / 2);
+                const pivot = new Vector(x0 + this.width / 2, y0 + this.height / 2);
 
-                coords = point.subtract(pivot).rotate(rotationAngle).add(pivot)
+                // coords = point.subtract(pivot).rotate(rotationAngle).add(pivot)
             }
 
             if (index === 0) {

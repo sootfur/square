@@ -1,14 +1,14 @@
-import { canvas } from '@constants';
+import { canvas } from '@options';
 import type { BiomeVariantType } from '@components/Biome';
 import { biomeVariants } from '@components/Biome'
 import { Road } from '@components/Road';
 import { Tile } from '@components/Tile';
-import { Coords } from '@utils/Coords';
+import { Vector } from '@utils/Vector';
 import { getRandomNumber } from '@utils/getRandomNumber';
 import {
     tileWidth,
     tileHeight,
-} from '@constants';
+} from '@options';
 import { PlayerParamsType } from './types';
 
 export class Player {
@@ -50,9 +50,7 @@ export class Player {
 
         this.setTile(
             new Tile({
-                coords: new Coords(canvas.width - tileWidth * 2, canvas.height - tileHeight * 2),
-                width: tileWidth,
-                height: tileHeight,
+                coords: new Vector(canvas.width - tileWidth * 2, canvas.height - tileHeight * 2),
                 biomes,
             })
         );

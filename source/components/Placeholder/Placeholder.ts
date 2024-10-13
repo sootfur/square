@@ -1,21 +1,31 @@
-import { context } from '@constants';
-import type { Coords } from '@utils/Coords';
+import {
+    context,
+    leftBasis,
+    rightBasis,
+    tileSize,
+} from '@options';
+import { Vector } from '@utils/Vector';
+import { tileCoordinatesToCanvasCoordinates } from '@utils/tileCoordinatesToCanvasCoordinates';
 import type { PlaceholderParamsType } from './types';
 
 export class Placeholder {
-    coords: Coords;
+    coords: Vector;
 
     width: number;
 
     height: number;
 
+    path: Path2D;
+
     constructor(params: PlaceholderParamsType) {
         this.setCoords(params.coords);
-        this.setWidth(params.width);
-        this.setHeight(params.height);
+        this.setWidth(params?.width ?? tileSize);
+        this.setHeight(params?.height ?? tileSize);
+
+        this.createPath();
     }
 
-    setCoords(coords: Coords) {
+    setCoords(coords: Vector) {
         this.coords = coords;
     }
 
@@ -27,11 +37,28 @@ export class Placeholder {
         this.height = height;
     }
 
-    render() {
-        const x = this.coords.x;
-        const y = this.coords.y;
+    setPath(path: Path2D): void {
+        this.path = path;
+    }
 
-        context.fillStyle = '#CEF';
-        context.fillRect(x + this.width / 2 - 2, y + this.height / 2 - 2, 4, 4);
+    createPath(): void {
+        const path = new Path2D();
+
+        const p0 = tileCoordinatesToCanvasCoordinates(this.coords);
+        const p1 = tileCoordinatesToCanvasCoordinates(this.coords).add(rightBasis);
+        const p2 = tileCoordinatesToCanvasCoordinates(this.coords).add(rightBasis).add(leftBasis);
+        const p3 = tileCoordinatesToCanvasCoordinates(this.coords).add(leftBasis);
+
+        path.moveTo(p0.x, p0.y);
+        path.lineTo(p1.x, p1.y);
+        path.lineTo(p2.x, p2.y);
+        path.lineTo(p3.x, p3.y);
+
+        this.setPath(path);
+    }
+
+    public render() {
+        context.fillStyle = '#e8ffed';
+        context.fill(this.path);
     }
 }

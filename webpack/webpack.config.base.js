@@ -27,7 +27,7 @@ module.exports = {
         extensions: ['.ts', '.js'],
         alias: {
             '@components': path.resolve(__dirname, '../source/components'),
-            '@constants': path.resolve(__dirname, '../source/constants'),
+            '@options': path.resolve(__dirname, '../source/options'),
             '@utils': path.resolve(__dirname, '../source/utils'),
             '@styles': path.resolve(__dirname, '../source/styles'),
         },

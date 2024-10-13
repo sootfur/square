@@ -1,13 +1,16 @@
 import {
   canvas,
   context,
-  tileHeight,
-  tileWidth,
-} from '@constants';
+} from '@options';
 import { eventObserver } from '@utils/EventObserver';
-import { Coords } from '@utils/Coords';
-import { Land } from '@components/Land';
+import {
+  Land,
+  LandParamsWhenClickType,
+} from '@components/Land';
+import { Tile } from '@components/Tile';
 import { Player } from '@components/Player';
+import { Vector } from '@utils/Vector';
+import { canvasCoordinatesToTileCoordinates } from '@utils/canvasCoordinatesToTileCoordinates';
 
 export class Game {
   private land: Land;
@@ -17,32 +20,39 @@ export class Game {
   constructor() {
     Game.setCanvasSize();
 
-    this.land = new Land({});
+    this.land = new Land({
+      whenClick: params => this.putTile(params),
+    });
 
     this.player = new Player({
       quantityOfTiles: 3,
     });
 
-    document.addEventListener('click', (event) => {
-      eventObserver.addListener('click', () => {
-        const i = Math.trunc(event.clientX / tileWidth);
-        const j = Math.trunc(event.clientY / tileHeight);
-        const key = this.land.getTileKey(i, j);
+    this.createInitialTile();
+  }
 
-        if (!this.land.hasTile(key)) {
-          const coords = new Coords(i * tileWidth, j * tileHeight)
-          const key = this.land.getTileKey(i, j);
-          const tile = this.player.tile;
+  private createInitialTile() {
+    const i = Math.trunc(canvas.width / 2);
+    const j = Math.trunc(canvas.height / 2);
+    const key = this.land.getTileKey(i, j);
 
-          tile.setCoords(coords);
-          tile.createPath();
-          tile.createElements();
+    this.land.addTile(key, new Tile({
+      coords: canvasCoordinatesToTileCoordinates(new Vector(i, j)),
+      biomes: ['lawn', 'lawn', 'lawn', 'lawn'],
+    }));
+  }
 
-          this.land.setTile(key, tile);
-          this.player.createRandomTile();
-        }
-      });
-    });
+  private putTile(params: LandParamsWhenClickType): void {
+    const key = params.key;
+    const tileCoordinates = params.tileCoordinates;
+    const tile = this.player.tile;
+
+    tile.setCoords(tileCoordinates); // не использовать прямой сеттер для возможности запуска компенсирующих методов
+    tile.createPath();
+    // tile.createElements();
+
+    this.land.addTile(key, tile);
+    this.player.createRandomTile();
   }
 
   static setCanvasSize({ width, height } = { width: window.innerWidth, height: window.innerHeight} ) {

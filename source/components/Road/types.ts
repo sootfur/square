@@ -1,7 +1,7 @@
-import { Coords } from '@utils/Coords';
+import { Vector } from '@utils/Vector';
 
 export type RoadParamsType = {
-    coords: Coords;
+    coords: Vector;
     width: number; // px
     height: number; // px
     rotation: number;

@@ -1,15 +1,16 @@
 import { Placeholder } from '@components/Placeholder';
 import { Tile } from '@components/Tile';
 import {
-    tileWidth,
-    tileHeight,
     tileKeySeparator,
     placeholderKeySeparator,
-} from '@constants'
-import { Coords } from '@utils/Coords';
+} from '@options';
+import { Point } from '@utils/Point';
+import { Vector } from '@utils/Vector';
 import { eventObserver } from '@utils/EventObserver';
+import { canvasCoordinatesToTileCoordinates } from '@utils/canvasCoordinatesToTileCoordinates';
 import {
     LandParamsType,
+    LandParamsWhenClickType,
     TileKeyType,
     PlaceholderKeyType,
     TilesType,
@@ -17,19 +18,30 @@ import {
 } from './types';
 
 export class Land {
-    tiles: TilesType;
-    placeholders: PlaceholdersType;
+    public tiles: TilesType;
+
+    public placeholders: PlaceholdersType;
+
+    public whenClick?: (params: LandParamsWhenClickType) => void; // rename -> when set new tile?
 
     constructor(params: LandParamsType) {
         this.setTiles(params.tiles ?? new Map());
         this.setPlaceholders(params.placeholders ?? new Map());
-
-        this.createPlaceholders();
+        this.setWhenClick(params?.whenClick);
 
         document.addEventListener('click', (event) => {
             eventObserver.addListener('click', () => {
-                const i = Math.trunc(event.clientX / tileWidth);
-                const j = Math.trunc(event.clientY / tileHeight);
+                const canvasCoordinates = new Point(event.clientX, event.clientY);
+                const tileCoordinates = canvasCoordinatesToTileCoordinates(canvasCoordinates);
+                const key = this.getTileKey(tileCoordinates.x, tileCoordinates.y);
+
+                if (!this.hasTile(key)) {
+                    this?.whenClick({
+                        key,
+                        canvasCoordinates,
+                        tileCoordinates,
+                    });
+                }
             });
         });
     }
@@ -40,6 +52,10 @@ export class Land {
 
     setPlaceholders(placeholders: PlaceholdersType) {
         this.placeholders = placeholders;
+    }
+
+    setWhenClick(whenClick: (params: LandParamsWhenClickType) => void): void {
+        this.whenClick = whenClick;
     }
 
     setTile(key: TileKeyType, tile: Tile): void {
@@ -82,18 +98,28 @@ export class Land {
         return this.placeholders.delete(key);
     }
 
-    createPlaceholders() {
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 20; j++) {
-                const key = this.getPlaceholderKey(i, j);
-                const placeholder = new Placeholder({
-                    coords: new Coords(j * tileWidth, i * tileHeight),
-                    width: tileWidth,
-                    height: tileHeight,
-                });
+    addTile(key: TileKeyType, tile: Tile): void {
+        if (this.hasPlaceholder(key)) {
+            this.removePlaceholder(key);
+        }
 
-                this.setPlaceholder(key, placeholder);
-            }
+        this.setTile(key, tile);
+
+        [
+            new Vector(tile.coords.x + 1, tile.coords.y),
+            new Vector(tile.coords.x - 1, tile.coords.y),
+            new Vector(tile.coords.x, tile.coords.y + 1),
+            new Vector(tile.coords.x, tile.coords.y - 1),
+        ].forEach(coords => this.addPlaceholder(coords));
+    }
+
+    addPlaceholder(coords: Vector): void {
+        const key = this.getPlaceholderKey(coords.x, coords.y); // переименовать в  LandKeyType
+
+        if (!this.hasTile(key) && !this.hasPlaceholder(key)) {
+            this.setPlaceholder(key, new Placeholder({
+                coords,
+            }));
         }
     }
 

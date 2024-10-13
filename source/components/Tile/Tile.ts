@@ -1,3 +1,9 @@
+import {
+    context,
+    leftBasis,
+    rightBasis,
+    tileSize,
+} from '@options';
 import type { BiomeVariantType } from '@components/Biome';
 import { biomeVariants } from '@components/Biome';
 import type { RoadVariantType } from '@components/Road';
@@ -5,9 +11,10 @@ import {
     Road,
     roadVariants,
 } from '@components/Road';
-import { context } from '@constants';
-import type { Coords } from '@utils/Coords';
+import { Vector } from '@utils/Vector';
 import { eventObserver } from '@utils/EventObserver';
+import { tileCoordinatesToCanvasCoordinates } from '@utils/tileCoordinatesToCanvasCoordinates';
+
 import {
     TileParamsType,
     TileElementType,
@@ -17,7 +24,7 @@ const minRotation = 0;
 const maxRotation = 3;
 
 export class Tile {
-    public coords: Coords;
+    public coords: Vector;
 
     public width: number;
 
@@ -35,8 +42,8 @@ export class Tile {
 
     constructor(params: TileParamsType) {
         this.setCoords(params.coords);
-        this.setWidth(params.width);
-        this.setHeight(params.height);
+        this.setWidth(params?.width ?? tileSize);
+        this.setHeight(params?.height ?? tileSize);
         this.setRotation(params.rotation || 0);
         this.setBiomes(params.biomes);
         this.setElements([]);
@@ -54,7 +61,7 @@ export class Tile {
         });
     }
 
-    setCoords(coords: Coords): void {
+    setCoords(coords: Vector): void {
         this.coords = coords;
     }
 
@@ -95,7 +102,15 @@ export class Tile {
     createPath(): void {
         const path = new Path2D();
 
-        path.rect(this.coords.x, this.coords.y, this.width, this.height);
+        const p0 = tileCoordinatesToCanvasCoordinates(this.coords);
+        const p1 = tileCoordinatesToCanvasCoordinates(this.coords).add(rightBasis);
+        const p2 = tileCoordinatesToCanvasCoordinates(this.coords).add(rightBasis).add(leftBasis);
+        const p3 = tileCoordinatesToCanvasCoordinates(this.coords).add(leftBasis);
+
+        path.moveTo(p0.x, p0.y);
+        path.lineTo(p1.x, p1.y);
+        path.lineTo(p2.x, p2.y);
+        path.lineTo(p3.x, p3.y);
 
         this.setPath(path);
     }
@@ -136,6 +151,7 @@ export class Tile {
                 break;
         }
 
+        /*
         this.setElement(
             new Road({
                 coords: this.coords,
@@ -146,6 +162,7 @@ export class Tile {
                 variant: roadVariant,
             })
         );
+        */
     }
 
     changeRotation(rotation: number) {
@@ -153,8 +170,6 @@ export class Tile {
         this.createPath();
 
         this.elements.forEach(element => {
-            console.log(element.rotation + (this.rotation - rotation))
-
             element.changeRotation(element.rotation + this.rotation);
         })
     }
@@ -163,6 +178,6 @@ export class Tile {
         context.fillStyle = '#69DDAD';
         context.fill(this.path);
 
-        this.elements.forEach(element => element?.render());
+        // this.elements.forEach(element => element?.render());
     }
 }

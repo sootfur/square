@@ -1,7 +1,7 @@
-import type { Coords } from '@utils/Coords';
+import type { Vector } from '@utils/Vector';
 
 export type PlaceholderParamsType = {
-    coords: Coords;
-    width: number;
-    height: number;
+    coords: Vector;
+    width?: number;
+    height?: number;
 };
